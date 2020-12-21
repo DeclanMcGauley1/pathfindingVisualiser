@@ -6,6 +6,8 @@ import time
 #create the window
 WIDTH = 800
 WINDOW = pygame.display.set_mode((WIDTH, WIDTH))
+ROWS = 50
+GAP = WIDTH // ROWS
 pygame.display.set_caption("Pathfinding visualiser")
 
 class Node:
@@ -70,22 +72,19 @@ def eucDistance(pointA, pointB):
 
 def makeGrid(rows, width):
     grid = []
-    gap = width // rows
-
     for row in range(rows):
         grid.append([])
         for col in range(rows):
-            node = Node(row, col, gap, rows)
+            node = Node(row, col, GAP, rows)
             grid[row].append(node)
 
     return grid
 
 def drawGrid(window, width, rows):
-    gap = width // rows
     for row in range(rows):
-        pygame.draw.line(window, (220,220,220), (0, row * gap), (width, row * gap))
+        pygame.draw.line(window, (220,220,220), (0, row * GAP), (width, row * GAP))
         for col in range(rows):
-            pygame.draw.line(window, (220, 220, 220), (col * gap, 0), (col*gap, width))
+            pygame.draw.line(window, (220, 220, 220), (col * GAP, 0), (col*GAP, width))
 
 
 def draw(window, grid, rows, width):
@@ -98,8 +97,21 @@ def draw(window, grid, rows, width):
     pygame.display.update()
 
 def main():
+    run = True
     grid = makeGrid(50, WIDTH)
-    draw(WINDOW, grid, 50, WIDTH)
-    time.sleep(3)
+    while run:
+        draw(WINDOW, grid, 50, WIDTH)
+
+        for event in pygame.event.get():
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                x, y = pos
+                xRow = x // GAP
+                yRow = y // GAP
+                print((xRow, yRow))
+                grid[xRow][yRow].setBarrior()
+            if event.type == pygame.QUIT:
+                run = False
+
 
 main()
