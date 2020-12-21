@@ -58,12 +58,17 @@ def getIndex(pos):
     col = y // GAP
     return (row, col)
 
+def eucDistance(pointA, pointB):
+    x1, y1 = pointA
+    x2, y2 = pointB
+    eucDist = math.sqrt((abs(x2 - x1) **2) + (abs(y2 - y1) **2))
+    return eucDist
+
 def main():
     grid = Grid()
     run = True
     startSet = False
     endSet = False
-
     while run:
         draw(grid)
         for event in pygame.event.get():
