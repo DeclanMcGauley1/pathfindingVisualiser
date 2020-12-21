@@ -72,7 +72,8 @@ def main():
             if pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()
                 row, col = getIndex(pos)
-                grid[row][col].setColour(BLACK)
+                if not (grid[row][col].colour == RED) and not (grid[row][col].colour == BLUE):
+                    grid[row][col].setColour(BLACK)
             if pygame.mouse.get_pressed()[2]:
                 pos = pygame.mouse.get_pos()
                 row, col = getIndex(pos)
