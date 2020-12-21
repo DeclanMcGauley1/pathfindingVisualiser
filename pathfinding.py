@@ -42,7 +42,7 @@ class Node:
         return self.end
 
     def setBarrior(self):
-        self.barrior = True
+        self.barrior = bool
         self.colour = (0,0,0)
 
     def setVisited(self):
@@ -56,6 +56,10 @@ class Node:
     def setEnd(self):
         self.end = True
         self.colour = (0,150,150)
+
+    def clearBarrior(self):
+        self.barrior = False
+        self.colour = (255,255,255)
 
     def draw(self, window):
         pygame.draw.rect(window, self.colour, (self.x, self.y, self.width, self.width))
@@ -98,6 +102,8 @@ def draw(window, grid, rows, width):
 
 def main():
     run = True
+    startSet = False
+    endSet = False
     grid = makeGrid(50, WIDTH)
     while run:
         draw(WINDOW, grid, 50, WIDTH)
@@ -108,10 +114,36 @@ def main():
                 x, y = pos
                 xRow = x // GAP
                 yRow = y // GAP
-                print((xRow, yRow))
                 grid[xRow][yRow].setBarrior()
+
+            if pygame.mouse.get_pressed()[2]:
+                pos = pygame.mouse.get_pos()
+                x, y = pos
+                xRow = x // GAP
+                yRow = y // GAP
+                grid[xRow][yRow].clearBarrior()
+
             if event.type == pygame.QUIT:
                 run = False
 
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_s]:
+            if startSet == False:
+                pos = pygame.mouse.get_pos()
+                x, y = pos
+                xRow = x // GAP
+                yRow = y // GAP
+                if grid[xRow][yRow].isEnd() == False:
+                    grid[xRow][yRow].setStart()
+                    startSet = True
 
+        if keys[pygame.K_e]:
+            if endSet == False:
+                pos = pygame.mouse.get_pos()
+                x, y = pos
+                xRow = x // GAP
+                yRow = y // GAP
+                if grid[xRow][yRow].isStart() == False:
+                    grid[xRow][yRow].setEnd()
+                    endSet = True
 main()
