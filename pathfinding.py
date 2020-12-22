@@ -24,6 +24,7 @@ class Node:
         self.row = row
         self.col = col
         self.isStart = False
+        self.isEnd = False
         self.f = math.inf
         self.g = math.inf
         self.h = math.inf
@@ -150,7 +151,8 @@ def dijkstras(grid, start, end):
     while len(openSet) > 0:
         pygame.event.get()
         current = openSet[0]
-        current.colour = YELLOW
+        if current.isStart == False and current.isEnd == False:
+            current.colour = YELLOW
         for node in openSet:
             if node.g < current.g:
                 current = node
@@ -229,6 +231,7 @@ def main():
                 grid[row][col].setColour(RED)
                 endSet = True
                 end = grid[row][col]
+                end.isEnd = True
 
         if keys[pygame.K_a] and startSet == True and endSet == True:
             started = True
