@@ -144,6 +144,7 @@ def aStar(grid, start, end):
 
 def dijkstras(grid, start, end):
     openSet = list()
+    closedSet = list()
     cameFrom = dict()
     start.g = 0
     openSet.append(start)
@@ -152,7 +153,7 @@ def dijkstras(grid, start, end):
         pygame.event.get()
         current = openSet[0]
         if current.isStart == False and current.isEnd == False:
-            current.colour = YELLOW
+            current.colour = GREEN
         for node in openSet:
             if node.g < current.g:
                 current = node
@@ -164,6 +165,7 @@ def dijkstras(grid, start, end):
 
         openSet.remove(current)
         current.getChildren(grid)
+        closedSet.append(current)
 
         for child in current.children:
             alt = current.g + 1
@@ -173,7 +175,9 @@ def dijkstras(grid, start, end):
                 if child not in openSet:
                     openSet.append(child)
 
-
+        for node in openSet:
+            if node.isEnd == False:
+                node.colour = YELLOW
         draw(grid)
 
 def getPath(cameFrom, current, grid):
