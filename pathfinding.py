@@ -1,17 +1,19 @@
 import pygame
 import time
 import math
+pygame.init()
 
-WIDTH = 800
+WIDTH = 1000
 ROWS = 50
 GAP = WIDTH // ROWS
-WINDOW = pygame.display.set_mode((WIDTH, WIDTH))
-pygame.display.set_caption("pathfinding")
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 BLUE = (0, 0, 210)
 RED = (255, 0, 0)
+YELLOW = (255,255,0)
+GREEN = (0, 255, 0)
+PURPLE = (255,0,255)
 
 
 class Node:
@@ -19,6 +21,11 @@ class Node:
         self.colour = colour
         self.row = row
         self.col = col
+        self.f = 0
+        self.g = 0
+        self.h = 0
+        self.parent = None
+        self.children = []
         self.x = row * GAP
         self.y = col * GAP
 
@@ -27,6 +34,27 @@ class Node:
 
     def draw(self, window):
         pygame.draw.rect(window, self.colour, (self.x, self.y, GAP, GAP))
+
+    def getChildren(self, grid):
+        row = self.row
+        col = self.col
+        if row > 0:
+            up = grid[row - 1][col]
+            if not up.colour == BLACK:
+                self.children.append(up)
+        if row < ROWS - 1:
+            down = grid[row + 1][col]
+            if not down.colour == BLACK:
+                self.children.append(down)
+        if col > 0:
+            left = grid[row][col - 1]
+            if not left.colour == BLACK:
+                self.children.append(left)
+        if col < ROWS - 1:
+            right = grid[row][col + 1]
+            if not right.colour == BLACK:
+                self.children.append(right)
+
 
 def Grid():
     grid = list()
@@ -37,19 +65,19 @@ def Grid():
             grid[row].append(node)
     return grid
 
-def drawGrid():
+def drawGrid(WINDOW):
     for row in range(ROWS):
         pygame.draw.line(WINDOW, (100, 100, 100), (0, row * GAP), (WIDTH, row*GAP))
         for col in range(ROWS):
             pygame.draw.line(WINDOW, (100,100,100), (col * GAP, 0), (col*GAP, WIDTH))
 
-def draw(grid):
+def draw(grid, WINDOW):
     WINDOW.fill((0,0,0))
     for row in grid:
         for node in row:
             node.draw(WINDOW)
 
-    drawGrid()
+    drawGrid(WINDOW)
     pygame.display.update()
 
 def getIndex(pos):
@@ -64,13 +92,22 @@ def eucDistance(pointA, pointB):
     eucDist = math.sqrt((abs(x2 - x1) **2) + (abs(y2 - y1) **2))
     return eucDist
 
+def aStar(grid, start, end):
+    
+
+
 def main():
     grid = Grid()
     run = True
     startSet = False
     endSet = False
+    start = None
+    end = None
+    started = False
+    WINDOW = pygame.display.set_mode((WIDTH, WIDTH))
+    pygame.display.set_caption("pathfinding")
     while run:
-        draw(grid)
+        draw(grid, WINDOW)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -89,18 +126,34 @@ def main():
                 grid[row][col].setColour(WHITE)
 
 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_s]:
-                if not startSet:
-                    pos = pygame.mouse.get_pos()
-                    row, col = getIndex(pos)
-                    grid[row][col].setColour(BLUE)
-                    startSet = True
-            if keys[pygame.K_e]:
-                if not endSet:
-                    pos = pygame.mouse.get_pos()
-                    row, col = getIndex(pos)
-                    grid[row][col].setColour(RED)
-                    endSet = True
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_s]:
+            if not startSet:
+                pos = pygame.mouse.get_pos()
+                row, col = getIndex(pos)
+                startPos = (row, col)
+                grid[row][col].setColour(BLUE)
+                startSet = True
+                start = grid[row][col]
+                children = start.getChildren(grid)
+                for child in children:
+                    child.colour = YELLOW
+
+        if keys[pygame.K_e]:
+            if not endSet:
+                pos = pygame.mouse.get_pos()
+                row, col = getIndex(pos)
+                endPos = (row, col)
+                grid[row][col].setColour(RED)
+                endSet = True
+                end = grid[row][col]
+
+        if keys[pygame.K_a] and startSet == True and endSet == True:
+            started = True
+            aStar(grid, start, end)
+            run = False
+
+
+    pygame.quit()
 
 main()
