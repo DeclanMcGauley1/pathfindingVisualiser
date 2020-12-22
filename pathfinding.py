@@ -93,7 +93,37 @@ def eucDistance(pointA, pointB):
     return eucDist
 
 def aStar(grid, start, end):
-    
+    #positions of the start and the end nodes of the search
+    startPos = (start.row, start.col)
+    endPos = (end.row, end.col)
+    openSet = list()
+    openSet.append(start)
+    start.f = eucDistance(startPos, endPos)
+
+    while len(openSet) > 0:
+        current = openSet[0]
+
+        for node in openSet:
+            if node.f < current.f:
+                current = node
+
+        if current == end:
+            print("success")
+            break
+
+        openSet.remove(current)
+        current.getChildren(grid)
+
+        for child in current.children:
+            child.g = current.g + 1
+            childPos = (child.row, child.col)
+            child.h = eucDistance(childPos, endPos)
+            child.f = child.g + child.h
+
+            if child not in openSet:
+                openSet.append(child)
+
+    print("we failed")
 
 
 def main():
@@ -135,9 +165,6 @@ def main():
                 grid[row][col].setColour(BLUE)
                 startSet = True
                 start = grid[row][col]
-                children = start.getChildren(grid)
-                for child in children:
-                    child.colour = YELLOW
 
         if keys[pygame.K_e]:
             if not endSet:
