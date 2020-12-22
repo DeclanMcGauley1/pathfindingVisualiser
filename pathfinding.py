@@ -6,6 +6,8 @@ pygame.init()
 WIDTH = 1000
 ROWS = 50
 GAP = WIDTH // ROWS
+WINDOW = pygame.display.set_mode((WIDTH, WIDTH))
+pygame.display.set_caption("pathfinding")
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
@@ -21,9 +23,10 @@ class Node:
         self.colour = colour
         self.row = row
         self.col = col
-        self.f = 0
-        self.g = 0
-        self.h = 0
+        self.isStart = False
+        self.f = math.inf
+        self.g = math.inf
+        self.h = math.inf
         self.parent = None
         self.children = []
         self.x = row * GAP
@@ -40,19 +43,19 @@ class Node:
         col = self.col
         if row > 0:
             up = grid[row - 1][col]
-            if not up.colour == BLACK:
+            if not up.colour == BLACK or not up.colour == BLUE:
                 self.children.append(up)
         if row < ROWS - 1:
             down = grid[row + 1][col]
-            if not down.colour == BLACK:
+            if not down.colour == BLACK or not down.colour == BLUE:
                 self.children.append(down)
         if col > 0:
             left = grid[row][col - 1]
-            if not left.colour == BLACK:
+            if not left.colour == BLACK or not left.colour == BLUE:
                 self.children.append(left)
         if col < ROWS - 1:
             right = grid[row][col + 1]
-            if not right.colour == BLACK:
+            if not right.colour == BLACK or not right.colour == BLUE:
                 self.children.append(right)
 
 
@@ -65,19 +68,19 @@ def Grid():
             grid[row].append(node)
     return grid
 
-def drawGrid(WINDOW):
+def drawGrid():
     for row in range(ROWS):
         pygame.draw.line(WINDOW, (100, 100, 100), (0, row * GAP), (WIDTH, row*GAP))
         for col in range(ROWS):
             pygame.draw.line(WINDOW, (100,100,100), (col * GAP, 0), (col*GAP, WIDTH))
 
-def draw(grid, WINDOW):
+def draw(grid):
     WINDOW.fill((0,0,0))
     for row in grid:
         for node in row:
             node.draw(WINDOW)
 
-    drawGrid(WINDOW)
+    drawGrid()
     pygame.display.update()
 
 def getIndex(pos):
@@ -97,34 +100,49 @@ def aStar(grid, start, end):
     startPos = (start.row, start.col)
     endPos = (end.row, end.col)
     openSet = list()
+    closedSet = list()
+    cameFrom = dict()
     openSet.append(start)
     start.f = eucDistance(startPos, endPos)
+    start.g = 0
 
     while len(openSet) > 0:
+        pygame.event.get()
         current = openSet[0]
-
         for node in openSet:
             if node.f < current.f:
                 current = node
 
         if current == end:
             print("success")
+            shortestPath = getPath(cameFrom, current, grid)
             break
 
+
         openSet.remove(current)
+        closedSet.append(current)
         current.getChildren(grid)
 
         for child in current.children:
-            child.g = current.g + 1
+            tempG = current.g + 1
             childPos = (child.row, child.col)
-            child.h = eucDistance(childPos, endPos)
-            child.f = child.g + child.h
+            print("Test")
+            if tempG < child.g:
+                print("test in here")
+                cameFrom[child] = current
+                child.g = tempG
+                child.h = eucDistance(childPos, endPos)
+                child.f = child.g + child.h
+                if child not in openSet:
+                    openSet.append(child)
 
-            if child not in openSet:
-                openSet.append(child)
-
-    print("we failed")
-
+def getPath(cameFrom, current, grid):
+    while current in cameFrom:
+        current = cameFrom[current]
+        if not current.isStart:
+            current.colour = PURPLE
+        draw(grid)
+    time.sleep(3)
 
 def main():
     grid = Grid()
@@ -134,10 +152,8 @@ def main():
     start = None
     end = None
     started = False
-    WINDOW = pygame.display.set_mode((WIDTH, WIDTH))
-    pygame.display.set_caption("pathfinding")
     while run:
-        draw(grid, WINDOW)
+        draw(grid)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -165,6 +181,7 @@ def main():
                 grid[row][col].setColour(BLUE)
                 startSet = True
                 start = grid[row][col]
+                start.isStart = True
 
         if keys[pygame.K_e]:
             if not endSet:
