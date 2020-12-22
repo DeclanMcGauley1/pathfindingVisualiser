@@ -43,19 +43,19 @@ class Node:
         col = self.col
         if row > 0:
             up = grid[row - 1][col]
-            if not up.colour == BLACK or not up.colour == BLUE:
+            if not up.colour == BLACK:
                 self.children.append(up)
         if row < ROWS - 1:
             down = grid[row + 1][col]
-            if not down.colour == BLACK or not down.colour == BLUE:
+            if not down.colour == BLACK:
                 self.children.append(down)
         if col > 0:
             left = grid[row][col - 1]
-            if not left.colour == BLACK or not left.colour == BLUE:
+            if not left.colour == BLACK:
                 self.children.append(left)
         if col < ROWS - 1:
             right = grid[row][col + 1]
-            if not right.colour == BLACK or not right.colour == BLUE:
+            if not right.colour == BLACK:
                 self.children.append(right)
 
 
@@ -126,15 +126,53 @@ def aStar(grid, start, end):
         for child in current.children:
             tempG = current.g + 1
             childPos = (child.row, child.col)
-            print("Test")
             if tempG < child.g:
-                print("test in here")
                 cameFrom[child] = current
                 child.g = tempG
                 child.h = eucDistance(childPos, endPos)
                 child.f = child.g + child.h
                 if child not in openSet:
                     openSet.append(child)
+
+        for node in openSet:
+            node.colour = YELLOW
+        for node in closedSet:
+            node.colour = GREEN
+
+        draw(grid)
+
+def dijkstras(grid, start, end):
+    openSet = list()
+    cameFrom = dict()
+    start.g = 0
+    openSet.append(start)
+
+    while len(openSet) > 0:
+        pygame.event.get()
+        current = openSet[0]
+        current.colour = YELLOW
+        for node in openSet:
+            if node.g < current.g:
+                current = node
+
+        if current == end:
+            print("success")
+            getPath(cameFrom, current, grid)
+            break
+
+        openSet.remove(current)
+        current.getChildren(grid)
+
+        for child in current.children:
+            alt = current.g + 1
+            if alt < child.g:
+                child.g = alt
+                cameFrom[child] = current
+                if child not in openSet:
+                    openSet.append(child)
+
+
+        draw(grid)
 
 def getPath(cameFrom, current, grid):
     while current in cameFrom:
@@ -196,7 +234,10 @@ def main():
             started = True
             aStar(grid, start, end)
             run = False
-
+        elif keys[pygame.K_d] and startSet == True and endSet == True:
+            started = True
+            dijkstras(grid, start, end)
+            run = False
 
     pygame.quit()
 
