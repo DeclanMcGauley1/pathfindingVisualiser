@@ -136,9 +136,13 @@ def aStar(grid, start, end):
                     openSet.append(child)
 
         for node in openSet:
-            node.colour = YELLOW
+            if not node.isStart:
+                if not node.isEnd:
+                    node.colour = YELLOW
         for node in closedSet:
-            node.colour = GREEN
+            if not node.isStart:
+                if not node.isEnd:
+                    node.colour = GREEN
 
         draw(grid)
 
@@ -226,6 +230,8 @@ def main():
                 startSet = True
                 start = grid[row][col]
                 start.isStart = True
+                if start == end:
+                    endSet = False
 
         if keys[pygame.K_e]:
             if not endSet:
@@ -236,6 +242,8 @@ def main():
                 endSet = True
                 end = grid[row][col]
                 end.isEnd = True
+                if end == start:
+                    startSet = False
 
         if keys[pygame.K_a] and startSet == True and endSet == True:
             started = True
